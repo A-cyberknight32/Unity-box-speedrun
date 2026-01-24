@@ -2,4 +2,5 @@ print("hello world")
 
 while True:
 
-	print("a")
+	print("abc")
+
