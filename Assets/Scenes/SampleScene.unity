@@ -408,8 +408,8 @@ MonoBehaviour:
   gravity: -19.62
   jumpHeight: 8
   rotationSpeed: 10
-  firstPersonTarget: {fileID: 0}
-  thirdPersonTarget: {fileID: 0}
+  firstPersonTarget: {fileID: 1177112683}
+  thirdPersonTarget: {fileID: 949554278}
   cameraSmoothSpeed: 10
 --- !u!143 &542690275
 CharacterController:
@@ -1148,8 +1148,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1177112683}
   - {fileID: 949554278}
+  - {fileID: 1177112683}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &846372891
@@ -1354,8 +1354,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000030489367, y: -0.122183256, z: 0.0000000037534122, w: 0.9925076}
-  m_LocalPosition: {x: 298.5, y: 58.5, z: 371.8}
+  m_LocalRotation: {x: -0.0000000073926256, y: 0.0000000011381515, z: 8.413927e-18, w: 1}
+  m_LocalPosition: {x: 297.91, y: 64.89014, z: 362.94}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
