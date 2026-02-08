@@ -1,10 +1,16 @@
 using UnityEngine;
+using Cinemachine; // Dodaj to!
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     private CharacterController controller;
-    private Transform cam; // Referencja do g³ównej kamery
+    private Transform cam;
+
+    [Header("Kamery Cinemachine")]
+    public CinemachineVirtualCamera fppCamera;
+    public CinemachineFreeLook tppCamera;
+    private bool isFPP = false;
 
     [Header("Ustawienia Ruchu")]
     public float speed = 6.0f;
@@ -14,17 +20,33 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 velocity;
     private bool isGrounded;
+    private float rotationVelocity;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        cam = Camera.main.transform; // Automatycznie znajduje g³ówn¹ kamerê
+        cam = Camera.main.transform;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Ustawienie pocz¹tkowe kamer
+        UpdateCameraPriority();
     }
 
     void Update()
+    {
+        // Prze³¹czanie kamer klawiszem C
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            isFPP = !isFPP;
+            UpdateCameraPriority();
+        }
+
+        MovePlayer();
+    }
+
+    void MovePlayer()
     {
         isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0)
@@ -32,24 +54,38 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
         }
 
-        float horizontal = Input.GetAxisRaw("Horizontal"); // GetAxisRaw daje lepsz¹ responsywnoœæ
+        float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
 
-        if (direction.magnitude >= 0.1f)
+        if (isFPP)
         {
-            // 1. Obliczamy k¹t obrotu kamery wzglêdem osi Y
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+            // --- LOGIKA FPP ---
+            // Postaæ zawsze obraca siê tam, gdzie patrzy kamera (tylko oœ Y)
+            transform.rotation = Quaternion.Euler(0, cam.eulerAngles.y, 0);
 
-            // 2. P³ynnie obracamy postaæ do tego k¹ta
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationVelocity, 0.1f);
-            transform.rotation = Quaternion.Euler(0, angle, 0);
+            if (direction.magnitude >= 0.1f)
+            {
+                // Ruch wzglêdem kierunku patrzenia
+                Vector3 moveDir = transform.right * horizontal + transform.forward * vertical;
+                controller.Move(moveDir.normalized * speed * Time.deltaTime);
+            }
+        }
+        else
+        {
+            // --- LOGIKA TPP (Twoja oryginalna) ---
+            if (direction.magnitude >= 0.1f)
+            {
+                float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationVelocity, 0.1f);
+                transform.rotation = Quaternion.Euler(0, angle, 0);
 
-            // 3. Obliczamy kierunek ruchu w stronê, w któr¹ obrócona jest kamera
-            Vector3 moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-            controller.Move(moveDir.normalized * speed * Time.deltaTime);
+                Vector3 moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
+                controller.Move(moveDir.normalized * speed * Time.deltaTime);
+            }
         }
 
+        // Skok i grawitacja (wspólne)
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -59,5 +95,17 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    private float rotationVelocity; // Zmienna pomocnicza do SmoothDampAngle
+    void UpdateCameraPriority()
+    {
+        if (isFPP)
+        {
+            fppCamera.Priority = 20;
+            tppCamera.Priority = 10;
+        }
+        else
+        {
+            fppCamera.Priority = 10;
+            tppCamera.Priority = 20;
+        }
+    }
 }
