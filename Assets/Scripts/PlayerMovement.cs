@@ -1,5 +1,5 @@
 using UnityEngine;
-using Cinemachine; // Dodaj to!
+using Cinemachine; 
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour

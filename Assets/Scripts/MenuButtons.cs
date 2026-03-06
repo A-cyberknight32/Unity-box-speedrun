@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class MenuButtons : MonoBehaviour
@@ -14,7 +12,12 @@ public class MenuButtons : MonoBehaviour
     {
         SceneManager.LoadScene("Jak graæ");
     }
-    
+
+    public void LoadSceneByName (string SceneName)
+    { 
+        SceneManager.LoadScene(SceneName);
+    }
+
     public void Exit()
     {
         Application.Quit();
