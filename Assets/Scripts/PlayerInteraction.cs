@@ -19,8 +19,11 @@ public class PlayerInteraction : MonoBehaviour
             else
                 ThrowItem();
         }
+    }
 
-        // <<< TO BY£O BRAKUJ¥CE
+    // Trzymanie po ruchu kamery (mniej jittera)
+    void LateUpdate()
+    {
         if (heldItem != null)
             HoldItem();
     }
@@ -29,11 +32,11 @@ public class PlayerInteraction : MonoBehaviour
     {
         Ray ray = playerCamera.ScreenPointToRay(
             new Vector3(Screen.width / 2, Screen.height / 2));
-        Debug.Log("cos nie pyk³o");
+
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
         {
-
             Debug.Log(hit.collider.gameObject.name);
+
             Item item = hit.collider.GetComponent<Item>();
             if (item != null)
             {
@@ -46,8 +49,15 @@ public class PlayerInteraction : MonoBehaviour
     {
         heldItem = item;
 
-        item.rb.isKinematic = true;
+        // wy³¹cz fizykê
+        item.rb.velocity = Vector3.zero;
+        item.rb.angularVelocity = Vector3.zero;
+
         item.rb.useGravity = false;
+        item.rb.isKinematic = true;
+
+        // zapobiega obracaniu siê
+        item.rb.freezeRotation = true;
     }
 
     void HoldItem()
@@ -56,14 +66,15 @@ public class PlayerInteraction : MonoBehaviour
             playerCamera.transform.position +
             playerCamera.transform.forward * holdDistance;
 
-        heldItem.transform.position = targetPosition;
-        heldItem.transform.rotation = Quaternion.identity;
+        // u¿ywamy fizyki zamiast teleportowania
+        heldItem.rb.MovePosition(targetPosition);
     }
 
     void ThrowItem()
     {
         heldItem.rb.isKinematic = false;
         heldItem.rb.useGravity = true;
+        heldItem.rb.freezeRotation = false;
 
         heldItem.rb.AddForce(
             playerCamera.transform.forward * throwForce,
